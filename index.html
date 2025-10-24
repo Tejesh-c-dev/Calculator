@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="calculator">
+        <div class="display-container">
+            <input type="text" id="display" class="display" disabled>
+            <div id="history" class="history"></div>
+        </div>
+        <div class="buttons">
+            <button class="special" onclick="clearDisplay()">AC</button>
+            <button class="special" onclick="deleteLast()">DEL</button>
+            <button class="operator" onclick="appendValue('%')">%</button>
+            <button class="operator" onclick="appendValue('/')">/</button>
+            
+            <button onclick="appendValue('7')">7</button>
+            <button onclick="appendValue('8')">8</button>
+            <button onclick="appendValue('9')">9</button>
+            <button class="operator" onclick="appendValue('*')">×</button>
+            
+            <button onclick="appendValue('4')">4</button>
+            <button onclick="appendValue('5')">5</button>
+            <button onclick="appendValue('6')">6</button>
+            <button class="operator" onclick="appendValue('-')">−</button>
+            
+            <button onclick="appendValue('1')">1</button>
+            <button onclick="appendValue('2')">2</button>
+            <button onclick="appendValue('3')">3</button>
+            <button class="operator" onclick="appendValue('+')">+</button>
+            
+            <button onclick="appendValue('0')" class="span-2">0</button>
+            <button onclick="appendValue('.')">.</button>
+            <button class="operator equals" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        const history = document.getElementById('history');
+        let lastResult = '';
+
+        function appendValue(val) {
+            if (display.value === 'Error' || display.value === lastResult) {
+                display.value = '';
+            }
+            display.value += val;
+        }
+
+        function clearDisplay() {
+            display.value = '';
+            history.textContent = '';
+            lastResult = '';
+        }
+
+        function deleteLast() {
+            display.value = display.value.slice(0, -1);
+        }
+
+        function calculate() {
+            try {
+                const expression = display.value;
+                if (!expression) return;
+
+                // Handle percentage calculations
+                const processedExpression = expression.replace(/(\d+)%/g, '($1/100)');
+                
+                const result = eval(processedExpression);
+                
+                // Format result to avoid long decimal numbers
+                const formattedResult = Number.isInteger(result) ? 
+                    result : 
+                    parseFloat(result.toFixed(8)).toString();
+                
+                // Update history
+                history.textContent = expression + ' =';
+                display.value = formattedResult;
+                lastResult = formattedResult;
+            } catch (error) {
+                display.value = 'Error';
+                history.textContent = '';
+            }
+        }
+
+        // Add keyboard support
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+            if (key >= '0' && key <= '9' || key === '.' || key === '+' || 
+                key === '-' || key === '*' || key === '/' || key === '%') {
+                appendValue(key);
+            } else if (key === 'Enter' || key === '=') {
+                calculate();
+            } else if (key === 'Backspace') {
+                deleteLast();
+            } else if (key === 'Escape') {
+                clearDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
